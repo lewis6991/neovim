@@ -40,6 +40,7 @@
 #include "nvim/lua/converter.h"
 #include "nvim/lua/executor.h"
 #include "nvim/lua/treesitter.h"
+#include "nvim/lua/xdiff.h"
 
 #include "luv/luv.h"
 
@@ -510,6 +511,8 @@ static int nlua_state_init(lua_State *const lstate) FUNC_ATTR_NONNULL_ALL
   lua_setfield(lstate, -2, "__tostring");
   nlua_empty_dict_ref = nlua_ref(lstate, -1);
   lua_setfield(lstate, -2, "_empty_dict_mt");
+
+  luaopen_xdiff(lstate);
 
   // internal vim._treesitter... API
   nlua_add_treesitter(lstate);
