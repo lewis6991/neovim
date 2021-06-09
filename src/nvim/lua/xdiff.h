@@ -1,10 +1,10 @@
-#ifndef NVIM_LUA_DIFF_H
-#define NVIM_LUA_DIFF_H
+#ifndef NVIM_LUA_XDIFF_H
+#define NVIM_LUA_XDIFF_H
 
 #include <lua.h>
 #include <lualib.h>
 #include <lauxlib.h>
 
-int luaopen_xdiff(lua_State *L);
+int lua_xdl_diff(lua_State *L);
 
-#endif  // NVIM_LUA_DIFF_H
+#endif  // NVIM_LUA_XDIFF_H

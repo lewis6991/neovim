@@ -512,10 +512,11 @@ static int nlua_state_init(lua_State *const lstate) FUNC_ATTR_NONNULL_ALL
   nlua_empty_dict_ref = nlua_ref(lstate, -1);
   lua_setfield(lstate, -2, "_empty_dict_mt");
 
-  luaopen_xdiff(lstate);
-
   // internal vim._treesitter... API
   nlua_add_treesitter(lstate);
+
+  // internal vim._xdiff... API
+  nlua_add_xdiff(lstate);
 
   lua_setglobal(lstate, "vim");
 
@@ -1476,6 +1477,12 @@ static void nlua_add_treesitter(lua_State *const lstate) FUNC_ATTR_NONNULL_ALL
 
   lua_pushcfunction(lstate, tslua_get_language_version);
   lua_setfield(lstate, -2, "_ts_get_language_version");
+}
+
+static void nlua_add_xdiff(lua_State *const lstate) FUNC_ATTR_NONNULL_ALL
+{
+  lua_pushcfunction(lstate, lua_xdl_diff);
+  lua_setfield(lstate, -2, "_xdl_diff");
 }
 
 int nlua_expand_pat(expand_T *xp,

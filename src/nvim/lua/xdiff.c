@@ -56,7 +56,7 @@ static mmfile_t parse_argument(lua_State *L, int idx) {
   return mf;
 }
 
-static int lua_xdl_diff(lua_State *L) {
+int lua_xdl_diff(lua_State *L) {
   mmfile_t m1 = parse_argument(L, 1);
   mmfile_t m2 = parse_argument(L, 2);
 
@@ -87,14 +87,4 @@ static int lua_xdl_diff(lua_State *L) {
     luaL_pushresult((luaL_Buffer*) ecb.priv);
     return 1;
   }
-}
-
-static luaL_Reg lxd_functions[] = {
-  { "diff", lua_xdl_diff },
-  { NULL, NULL }
-};
-
-int luaopen_xdiff(lua_State *L) {
-  luaL_register(L, NULL, lxd_functions);
-  return 1;
 }
