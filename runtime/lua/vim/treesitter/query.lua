@@ -173,7 +173,13 @@ function M.get_node_text(node, source)
   local end_row, end_col, end_byte = node:end_()
 
   if type(source) == "number" then
-    local lines = a.nvim_buf_get_lines(source, start_row, end_row+1, true)
+    local eof_row = vim.api.nvim_buf_line_count(source)
+    if start_row >= eof_row then
+      return nil
+    end
+
+    local end_offset = end_col == 0 and 0 or 1
+    local lines = a.nvim_buf_get_lines(source, start_row, end_row+end_offset, true)
 
     if start_row == end_row then
       lines[1]      = string.sub(lines[1]     , start_col+1, end_col)
