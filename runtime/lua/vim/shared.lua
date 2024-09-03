@@ -354,11 +354,6 @@ function vim.tbl_isempty(t)
   return next(t) == nil
 end
 
---- We only merge empty tables or tables that are not an array (indexed by integers)
-local function can_merge(v)
-  return type(v) == 'table' and (vim.tbl_isempty(v) or not vim.isarray(v))
-end
-
 local function tbl_extend(behavior, deep_extend, ...)
   if behavior ~= 'error' and behavior ~= 'keep' and behavior ~= 'force' then
     error('invalid "behavior": ' .. tostring(behavior))
@@ -383,7 +378,7 @@ local function tbl_extend(behavior, deep_extend, ...)
     --- @cast tbl table<any,any>
     if tbl then
       for k, v in pairs(tbl) do
-        if deep_extend and can_merge(v) and can_merge(ret[k]) then
+        if deep_extend and type(v) == 'table' and type(ret[k]) == 'table' then
           ret[k] = tbl_extend(behavior, true, ret[k], v)
         elseif behavior ~= 'force' and ret[k] ~= nil then
           if behavior == 'error' then
