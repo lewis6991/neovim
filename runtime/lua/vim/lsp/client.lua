@@ -671,6 +671,15 @@ function Client:_request(method, params, handler, bufnr)
   bufnr = resolve_bufnr(bufnr)
   log.debug(self._log_prefix, 'client.request', self.id, method, params, handler, bufnr)
   local success, request_id = self.rpc.request(method, params, function(err, result)
+    -- Per LSP, don't show ContentModified error to the user.
+    if err and err.code ~= lsp.protocol.ErrorCodes.ContentModified then
+      vim.notify(
+        string.format('[LSP][%s] %s: %s', self.name, err.code, err.message),
+        vim.log.levels.ERROR
+      )
+      self:write_error(err.code, err.message)
+    end
+
     local context = {
       method = method,
       client_id = self.id,
@@ -678,6 +687,15 @@ function Client:_request(method, params, handler, bufnr)
       params = params,
       version = version,
     }
+
+    if log.trace() then
+      log.trace('default_handler', method, {
+        err = err,
+        result = result,
+        ctx = vim.inspect(context),
+      })
+    end
+
     handler(err, result, context)
   end, function(request_id)
     local request = self.requests[request_id]
@@ -757,7 +775,13 @@ function Client:_request_sync(method, params, timeout_ms, bufnr)
     if request_id then
       self:_cancel_request(request_id)
     end
-    return nil, wait_result_reason[reason]
+    local msg = wait_result_reason[reason]
+    vim.notify(
+      string.format('[LSP][%s] %s', self.name, msg),
+      vim.log.levels.ERROR
+    )
+    self:write_error(nil, msg)
+    return nil, wait_result_reason[msg]
   end
   return request_result
 end
@@ -961,10 +985,10 @@ end
 
 --- @private
 --- Logs the given error to the LSP log and to the error buffer.
---- @param code integer Error code
+--- @param code? integer Error code
 --- @param err any Error arguments
 function Client:write_error(code, err)
-  local client_error = lsp.client_errors[code] --- @type string|integer
+  local client_error = code and lsp.client_errors[code] or nil --- @type string|integer?
   log.error(self._log_prefix, 'on_error', { code = client_error, err = err })
   err_message(self._log_prefix, ': Error ', client_error, ': ', vim.inspect(err))
 end

@@ -358,16 +358,16 @@ local function get_line_byte_from_position(bufnr, position, offset_encoding)
 end
 
 --- Applies a list of text edits to a buffer.
----@param text_edits lsp.TextEdit[]
+---@param text_edits lsp.TextEdit[]?
 ---@param bufnr integer Buffer id
 ---@param offset_encoding 'utf-8'|'utf-16'|'utf-32'
 ---@see https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textEdit
 function M.apply_text_edits(text_edits, bufnr, offset_encoding)
-  validate('text_edits', text_edits, 'table', false)
+  validate('text_edits', text_edits, 'table', true)
   validate('bufnr', bufnr, 'number', false)
   validate('offset_encoding', offset_encoding, 'string', false)
 
-  if not next(text_edits) then
+  if not text_edits or not next(text_edits) then
     return
   end
 
@@ -683,10 +683,14 @@ end
 
 --- Applies a `WorkspaceEdit`.
 ---
----@param workspace_edit lsp.WorkspaceEdit
+---@param workspace_edit lsp.WorkspaceEdit?
 ---@param offset_encoding 'utf-8'|'utf-16'|'utf-32' (required)
 ---@see https://microsoft.github.io/language-server-protocol/specifications/specification-current/#workspace_applyEdit
 function M.apply_workspace_edit(workspace_edit, offset_encoding)
+  if not workspace_edit then
+    vim.notify("Language server couldn't provide rename result", vim.log.levels.INFO)
+    return
+  end
   if offset_encoding == nil then
     vim.notify_once(
       'apply_workspace_edit must be called with valid offset encoding',

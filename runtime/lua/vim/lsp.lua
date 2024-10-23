@@ -561,12 +561,10 @@ local function buf_attach(bufnr)
           client.notify(ms.textDocument_willSave, params)
         end
         if client.supports_method(ms.textDocument_willSaveWaitUntil) then
-          local result, err =
+          local result =
             client.request_sync(ms.textDocument_willSaveWaitUntil, params, 1000, ctx.buf)
           if result and result.result then
             util.apply_text_edits(result.result, ctx.buf, client.offset_encoding)
-          elseif err then
-            log.error(vim.inspect(err))
           end
         end
       end

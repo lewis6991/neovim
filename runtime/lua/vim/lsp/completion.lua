@@ -568,15 +568,13 @@ local function on_complete_done()
     local changedtick = vim.b[bufnr].changedtick
 
     --- @param result lsp.CompletionItem
-    client.request(ms.completionItem_resolve, completion_item, function(err, result)
+    client.request(ms.completionItem_resolve, completion_item, function(_, result)
       if changedtick ~= vim.b[bufnr].changedtick then
         return
       end
 
       clear_word()
-      if err then
-        vim.notify_once(err.message, vim.log.levels.WARN)
-      elseif result and result.additionalTextEdits then
+      if result and result.additionalTextEdits then
         lsp.util.apply_text_edits(result.additionalTextEdits, bufnr, offset_encoding)
         if result.command then
           completion_item.command = result.command
