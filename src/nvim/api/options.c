@@ -413,7 +413,8 @@ Object nvim_set_option_value(uint64_t channel_id, String name, Object value, Dic
 
   if (dry_run) {
     const CharBuf errbuf = { (char[IOSIZE]){ 0 }, IOSIZE };
-    errmsg = validate_option_value(opt_idx, &merged_val, opt_flags, buf, win, &errbuf);
+    errmsg = validate_and_prepare_option_value(opt_idx, &merged_val, opt_flags, buf, win, NULL,
+                                               &errbuf);
     if (errmsg != NULL) {
       api_set_error(err, kErrorTypeException, "%s", errmsg);
       optval_free(merged_val);
